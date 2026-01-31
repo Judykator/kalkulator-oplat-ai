@@ -5,19 +5,23 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
   let description = "";
   let legalBasis = "";
 
-  // KROK 1: Zaokrąglenie podstawy (WPS) w górę do pełnego złotego (Art. 21 u.k.s.c.)
   const baseForCalculation = Math.ceil(wps);
 
   switch (caseType) {
+    case CaseType.CONCILIATION_LOW:
+      fee = 120;
+      description = "Zawezwanie do próby ugodowej (WPS do 20 000 zł).";
+      legalBasis = "Art. 23a pkt 1 u.k.s.c.";
+      break;
+    case CaseType.CONCILIATION_HIGH:
+      fee = 300;
+      description = "Zawezwanie do próby ugodowej (WPS powyżej 20 000 zł).";
+      legalBasis = "Art. 23a pkt 2 u.k.s.c.";
+      break;
     case CaseType.BANKING_CONSUMER:
       fee = (baseForCalculation > 20000) ? 1000 : calculateStandardNoCeil(baseForCalculation);
       description = "Opłata dla konsumenta w sprawie bankowej.";
       legalBasis = "Art. 13a u.k.s.c.";
-      break;
-    case CaseType.CONCILIATION_PROPOSAL:
-      fee = (baseForCalculation > 20000) ? 300 : 120;
-      description = "Zawezwanie do próby ugodowej.";
-      legalBasis = "Art. 23a u.k.s.c.";
       break;
     case CaseType.EUROPEAN_SMALL_CLAIMS:
       fee = 100;
@@ -28,7 +32,7 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
     case CaseType.LEASE_SUCCESSION:
     case CaseType.EVICTION_RESIDENTIAL:
       fee = 200;
-      description = "Opłata stała (posiadanie / najem / eksmisja).";
+      description = "Opłata stała (naruszenie posiadania / wstąpienie w najem / eksmisja).";
       legalBasis = "Art. 27 u.k.s.c.";
       break;
     case CaseType.REAL_ESTATE_ZASIEDZENIE:
@@ -90,7 +94,7 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       break;
     case CaseType.NON_ADVERSARIAL_GENERAL:
       fee = 100;
-      description = "Inna sprawa nieprocesowa.";
+      description = "Inna sprawa nieprocesowa (Art. 23).";
       legalBasis = "Art. 23 pkt 1 u.k.s.c.";
       break;
     default:
@@ -99,23 +103,17 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       legalBasis = "Art. 13 u.k.s.c.";
   }
 
-  // MODYFIKACJA O TYP POSTĘPOWANIA
   if (procedure === ProcedureType.WRIT_PROCEEDINGS) {
     fee = fee * 0.25;
-    description += " (Pobrano czwartą część opłaty).";
+    description += " (Czwarta część opłaty).";
   } else if (procedure === ProcedureType.ORDER_PAYMENT_ELECTRONIC) {
     fee = baseForCalculation * 0.0125;
     if (fee < 30) fee = 30;
-    description = "EPU (Pobrano czwartą część opłaty).";
+    description = "EPU (Czwarta część opłaty).";
     legalBasis = "Art. 13 ust. 4 u.k.s.c.";
   }
 
-  // KROK 2: Zaokrąglenie końcowej opłaty w górę (Art. 21 u.k.s.c.)
-  return { 
-    fee: Math.ceil(fee), 
-    description, 
-    legalBasis 
-  };
+  return { fee: Math.ceil(fee), description, legalBasis };
 };
 
 function calculateStandardNoCeil(wps: number): number {
