@@ -5,14 +5,17 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
   let description = "";
   let legalBasis = "";
 
+  // KROK 1: Zaokrąglenie podstawy (WPS) w górę do pełnego złotego (Art. 21 u.k.s.c.)
+  const baseForCalculation = Math.ceil(wps);
+
   switch (caseType) {
     case CaseType.BANKING_CONSUMER:
-      fee = (wps > 20000) ? 1000 : calculateStandard(wps).fee;
-      description = "Opłata stała dla konsumenta (Art. 13a stosuje się przy WPS > 20.000 zł).";
+      fee = (baseForCalculation > 20000) ? 1000 : calculateStandardNoCeil(baseForCalculation);
+      description = "Opłata dla konsumenta w sprawie bankowej.";
       legalBasis = "Art. 13a u.k.s.c.";
       break;
     case CaseType.CONCILIATION_PROPOSAL:
-      fee = (wps > 20000) ? 300 : 120;
+      fee = (baseForCalculation > 20000) ? 300 : 120;
       description = "Zawezwanie do próby ugodowej.";
       legalBasis = "Art. 23a u.k.s.c.";
       break;
@@ -25,7 +28,7 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
     case CaseType.LEASE_SUCCESSION:
     case CaseType.EVICTION_RESIDENTIAL:
       fee = 200;
-      description = "Opłata stała (naruszenie posiadania / wstąpienie w najem / eksmisja).";
+      description = "Opłata stała (posiadanie / najem / eksmisja).";
       legalBasis = "Art. 27 u.k.s.c.";
       break;
     case CaseType.REAL_ESTATE_ZASIEDZENIE:
@@ -34,15 +37,11 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       legalBasis = "Art. 40 u.k.s.c.";
       break;
     case CaseType.EASEMENT_PRESCRIPTION:
-      fee = 200;
-      description = "Zasiedzenie służebności gruntowej.";
-      legalBasis = "Art. 39 ust. 1 pkt 3 u.k.s.c.";
-      break;
     case CaseType.PROPERTY_DEMARCATION:
     case CaseType.EASEMENT_ROAD_NECESSITY:
       fee = 200;
-      description = "Rozgraniczenie / droga konieczna.";
-      legalBasis = "Art. 39 ust. 1 u.k.s.c.";
+      description = "Zasiedzenie służebności / Rozgraniczenie / Droga konieczna.";
+      legalBasis = "Art. 39 u.k.s.c.";
       break;
     case CaseType.CO_OWNERSHIP_DISSOLUTION:
       fee = 1000;
@@ -51,7 +50,7 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       break;
     case CaseType.CO_OWNERSHIP_DISSOLUTION_AGREED:
       fee = 600;
-      description = "Zniesienie współwłasności (zgodny projekt).";
+      description = "Zniesienie współwłasności (zgodne).";
       legalBasis = "Art. 41 ust. 2 u.k.s.c.";
       break;
     case CaseType.INHERITANCE_STATEMENT:
@@ -84,48 +83,48 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       break;
     case CaseType.ENFORCEABILITY_CLAUSE:
     case CaseType.REISSUE_ENFORCEMENT_TITLE:
-      fee = 50;
-      description = "Nadanie klauzuli wykonalności / ponowne wydanie tytułu.";
-      legalBasis = "Art. 71 pkt 1 i 2 u.k.s.c.";
-      break;
     case CaseType.BAILIFF_COMPLAINT:
       fee = 50;
-      description = "Skarga na czynności komornika.";
-      legalBasis = "Art. 25 ust. 1 u.k.s.c.";
+      description = "Klauzula / Tytuł / Skarga na komornika.";
+      legalBasis = "Właściwe przepisy u.k.s.c.";
       break;
     case CaseType.NON_ADVERSARIAL_GENERAL:
       fee = 100;
-      description = "Inna sprawa nieprocesowa (niewymieniona odrębnie).";
+      description = "Inna sprawa nieprocesowa.";
       legalBasis = "Art. 23 pkt 1 u.k.s.c.";
       break;
     default:
-      const std = calculateStandard(wps);
-      fee = std.fee;
-      description = std.description;
-      legalBasis = std.legalBasis;
+      fee = calculateStandardNoCeil(baseForCalculation);
+      description = "Opłata wg skali Art. 13.";
+      legalBasis = "Art. 13 u.k.s.c.";
   }
 
+  // MODYFIKACJA O TYP POSTĘPOWANIA
   if (procedure === ProcedureType.WRIT_PROCEEDINGS) {
-    fee = Math.ceil(fee * 0.25);
+    fee = fee * 0.25;
     description += " (Pobrano czwartą część opłaty).";
   } else if (procedure === ProcedureType.ORDER_PAYMENT_ELECTRONIC) {
-    fee = Math.max(30, Math.ceil(wps * 0.0125));
+    fee = baseForCalculation * 0.0125;
+    if (fee < 30) fee = 30;
     description = "EPU (Pobrano czwartą część opłaty).";
     legalBasis = "Art. 13 ust. 4 u.k.s.c.";
   }
 
-  return { fee, description, legalBasis };
+  // KROK 2: Zaokrąglenie końcowej opłaty w górę (Art. 21 u.k.s.c.)
+  return { 
+    fee: Math.ceil(fee), 
+    description, 
+    legalBasis 
+  };
 };
 
-function calculateStandard(wps: number) {
-  let fee = 0;
-  if (wps <= 500) fee = 30;
-  else if (wps <= 1500) fee = 100;
-  else if (wps <= 4000) fee = 200;
-  else if (wps <= 7500) fee = 400;
-  else if (wps <= 10000) fee = 500;
-  else if (wps <= 15000) fee = 750;
-  else if (wps <= 20000) fee = 1000;
-  else fee = Math.ceil(wps * 0.05);
-  return { fee, description: "Opłata wg skali Art. 13.", legalBasis: "Art. 13 u.k.s.c." };
+function calculateStandardNoCeil(wps: number): number {
+  if (wps <= 500) return 30;
+  if (wps <= 1500) return 100;
+  if (wps <= 4000) return 200;
+  if (wps <= 7500) return 400;
+  if (wps <= 10000) return 500;
+  if (wps <= 15000) return 750;
+  if (wps <= 20000) return 1000;
+  return wps * 0.05;
 }
