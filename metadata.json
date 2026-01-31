@@ -1,0 +1,5 @@
+{
+  "name": "Kalkulator Opłat Sądowych",
+  "description": "Profesjonalny kalkulator opłat sądowych w sprawach cywilnych w Polsce, uwzględniający aktualne stawki i progi ustawowe, wspierany przez sztuczną inteligencję Gemini.",
+  "requestFramePermissions": []
+}
