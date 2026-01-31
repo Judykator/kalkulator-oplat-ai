@@ -67,16 +67,11 @@ const App: React.FC = () => {
                   onChange={(e) => setCaseType(e.target.value as CaseType)}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-amber-500 transition-all outline-none"
                 >
-                  <optgroup label="Proces / Sprawy Majątkowe">
+                  <optgroup label="Proces / Majątkowe">
                     <option value={CaseType.CIVIL_GENERAL}>Inna sprawa o zapłatę (Art. 13)</option>
                     <option value={CaseType.BANKING_CONSUMER}>Przeciwko bankowi (Konsument)</option>
                     <option value={CaseType.CONCILIATION_PROPOSAL}>Zawezwanie do próby ugodowej</option>
                     <option value={CaseType.EUROPEAN_SMALL_CLAIMS}>Drobne roszczenia (UE) - 100 zł</option>
-                  </optgroup>
-                  <optgroup label="Najem i Posiadanie">
-                    <option value={CaseType.POSSESSION_DISTURBANCE}>Naruszenie posiadania - 200 zł</option>
-                    <option value={CaseType.LEASE_SUCCESSION}>Wstąpienie w stosunek najmu - 200 zł</option>
-                    <option value={CaseType.EVICTION_RESIDENTIAL}>Eksmisja z lokalu - 200 zł</option>
                   </optgroup>
                   <optgroup label="Nieruchomości / Nieproces">
                     <option value={CaseType.NON_ADVERSARIAL_GENERAL}>Inna sprawa nieprocesowa - 100 zł</option>
@@ -87,11 +82,16 @@ const App: React.FC = () => {
                     <option value={CaseType.CO_OWNERSHIP_DISSOLUTION}>Zniesienie współwłasności</option>
                     <option value={CaseType.CO_OWNERSHIP_DISSOLUTION_AGREED}>Zniesienie współwłasności (zgodne)</option>
                   </optgroup>
+                  <optgroup label="Posiadanie i Najem">
+                    <option value={CaseType.POSSESSION_DISTURBANCE}>Naruszenie posiadania - 200 zł</option>
+                    <option value={CaseType.LEASE_SUCCESSION}>Wstąpienie w najem - 200 zł</option>
+                    <option value={CaseType.EVICTION_RESIDENTIAL}>Eksmisja z lokalu - 200 zł</option>
+                  </optgroup>
                   <optgroup label="Spadki">
                     <option value={CaseType.INHERITANCE_STATEMENT}>Nabycie spadku - 100 zł</option>
                     <option value={CaseType.INHERITANCE_PROTECTION}>Zabezpieczenie spadku - 100 zł</option>
                     <option value={CaseType.INHERITANCE_INVENTORY}>Spis inwentarza - 100 zł</option>
-                    <option value={CaseType.INHERITANCE_DECLARATION}>Oświadczenie (przyjęcie/odrzucenie) - 100 zł</option>
+                    <option value={CaseType.INHERITANCE_DECLARATION}>Oświadczenie spadkowe - 100 zł</option>
                     <option value={CaseType.INHERITANCE_DIVISION}>Dział spadku</option>
                     <option value={CaseType.INHERITANCE_DIVISION_AGREED}>Dział spadku (zgodny)</option>
                     <option value={CaseType.INHERITANCE_DIVISION_CO_OWNERSHIP}>Dział spadku + Współwłasność - 1000 zł</option>
@@ -107,18 +107,18 @@ const App: React.FC = () => {
 
               {isWpsNeeded && (
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Wartość przedmiotu sporu (zł)</label>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">WPS (zł)</label>
                   <input
                     type="number"
                     value={wps}
                     onChange={(e) => setWps(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg font-black"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg font-black transition-all focus:ring-2 focus:ring-amber-500 outline-none"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Tryb / Pismo</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Pismo / Tryb</label>
                 <select
                   value={procedure}
                   onChange={(e) => setProcedure(e.target.value as ProcedureType)}
@@ -133,26 +133,26 @@ const App: React.FC = () => {
             </div>
           </div>
           <button onClick={handleAiConsultation} disabled={loadingAi} className="w-full bg-amber-500 text-white font-black py-4 rounded-xl shadow-lg hover:bg-amber-600 active:scale-95 transition-all">
-            {loadingAi ? "Przetwarzanie..." : "Generuj raport AI"}
+            {loadingAi ? "Analizowanie..." : "Generuj raport AI"}
           </button>
         </section>
 
         <section className="lg:col-span-2 space-y-6">
           {result && (
-            <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-200">
+            <div className="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 animate-in fade-in duration-500">
               <h4 className="text-xs font-black text-slate-400 uppercase mb-2 tracking-widest">Opłata do uiszczenia</h4>
               <div className="text-7xl font-black text-slate-900 mb-8 tracking-tighter">
                 {result.fee.toLocaleString('pl-PL')} <span className="text-xl text-slate-300 ml-2 uppercase">pln</span>
               </div>
               <div className="p-7 bg-slate-50 rounded-2xl border-l-4 border-amber-500 shadow-inner">
                 <p className="text-sm font-bold text-slate-700 mb-2 leading-relaxed">{result.description}</p>
-                <p className="text-xs text-slate-400 font-mono">Podstawa prawna: {result.legalBasis}</p>
+                <p className="text-xs text-slate-400 font-mono italic">Podstawa prawna: {result.legalBasis}</p>
               </div>
             </div>
           )}
           {aiExplanation && (
-            <div className="bg-slate-900 text-slate-200 p-10 rounded-3xl shadow-2xl border border-slate-800">
-              <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3 italic">
+            <div className="bg-slate-900 text-slate-200 p-10 rounded-3xl shadow-2xl border border-slate-800 animate-in slide-in-from-bottom-4 duration-500">
+              <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3">
                 <i className="fas fa-robot text-amber-500"></i> Analiza Prawna AI
               </h3>
               <div className="text-sm leading-relaxed whitespace-pre-wrap font-medium text-slate-300">{aiExplanation}</div>
