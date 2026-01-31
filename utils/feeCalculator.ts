@@ -6,7 +6,6 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
   let legalBasis = "";
 
   switch (caseType) {
-    // --- SPRAWY PROCESOWE I OGÓLNE ---
     case CaseType.BANKING_CONSUMER:
       fee = (wps > 20000) ? 1000 : calculateStandard(wps).fee;
       description = "Opłata stała dla konsumenta (Art. 13a stosuje się przy WPS > 20.000 zł).";
@@ -19,7 +18,7 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       break;
     case CaseType.EUROPEAN_SMALL_CLAIMS:
       fee = 100;
-      description = "Pozew w europejskim postępowaniu w sprawie drobnych roszczeń.";
+      description = "Europejskie postępowanie w sprawie drobnych roszczeń.";
       legalBasis = "Art. 27 pkt 13 u.k.s.c.";
       break;
     case CaseType.POSSESSION_DISTURBANCE:
@@ -29,22 +28,20 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       description = "Opłata stała (naruszenie posiadania / wstąpienie w najem / eksmisja).";
       legalBasis = "Art. 27 u.k.s.c.";
       break;
-
-    // --- NIERUCHOMOŚCI I NIEPROCES ---
     case CaseType.REAL_ESTATE_ZASIEDZENIE:
       fee = 2000;
-      description = "Wniosek o stwierdzenie zasiedzenia nieruchomości.";
+      description = "Zasiedzenie nieruchomości.";
       legalBasis = "Art. 40 u.k.s.c.";
       break;
     case CaseType.EASEMENT_PRESCRIPTION:
       fee = 200;
-      description = "Stwierdzenie nabycia służebności gruntowej przez zasiedzenie.";
+      description = "Zasiedzenie służebności gruntowej.";
       legalBasis = "Art. 39 ust. 1 pkt 3 u.k.s.c.";
       break;
     case CaseType.PROPERTY_DEMARCATION:
     case CaseType.EASEMENT_ROAD_NECESSITY:
       fee = 200;
-      description = "Wniosek o rozgraniczenie / drogę konieczną.";
+      description = "Rozgraniczenie / droga konieczna.";
       legalBasis = "Art. 39 ust. 1 u.k.s.c.";
       break;
     case CaseType.CO_OWNERSHIP_DISSOLUTION:
@@ -57,15 +54,13 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       description = "Zniesienie współwłasności (zgodny projekt).";
       legalBasis = "Art. 41 ust. 2 u.k.s.c.";
       break;
-
-    // --- SPADKI ---
     case CaseType.INHERITANCE_STATEMENT:
     case CaseType.INHERITANCE_PROTECTION:
     case CaseType.INHERITANCE_INVENTORY:
     case CaseType.INHERITANCE_DECLARATION:
       fee = 100;
-      description = "Sprawy spadkowe (stwierdzenie / zabezpieczenie / spis inwentarza / oświadczenie).";
-      legalBasis = "Art. 49 ust. 1 u.k.s.c.";
+      description = "Sprawy spadkowe.";
+      legalBasis = "Art. 49 u.k.s.c.";
       break;
     case CaseType.INHERITANCE_DIVISION:
       fee = 500;
@@ -74,7 +69,7 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       break;
     case CaseType.INHERITANCE_DIVISION_AGREED:
       fee = 300;
-      description = "Dział spadku (zgodny projekt).";
+      description = "Dział spadku (zgodny).";
       legalBasis = "Art. 51 ust. 1 u.k.s.c.";
       break;
     case CaseType.INHERITANCE_DIVISION_CO_OWNERSHIP:
@@ -82,8 +77,6 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       description = "Dział spadku połączony ze zniesieniem współwłasności.";
       legalBasis = "Art. 51 ust. 2 u.k.s.c.";
       break;
-
-    // --- POZOSTAŁE ---
     case CaseType.DEPOSIT_CASES:
       fee = 100;
       description = "Sprawy depozytowe.";
@@ -92,8 +85,8 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
     case CaseType.ENFORCEABILITY_CLAUSE:
     case CaseType.REISSUE_ENFORCEMENT_TITLE:
       fee = 50;
-      description = "Nadanie klauzuli / Ponowne wydanie tytułu wykonawczego.";
-      legalBasis = "Art. 71 u.k.s.c.";
+      description = "Nadanie klauzuli wykonalności / ponowne wydanie tytułu.";
+      legalBasis = "Art. 71 pkt 1 i 2 u.k.s.c.";
       break;
     case CaseType.BAILIFF_COMPLAINT:
       fee = 50;
@@ -105,7 +98,6 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       description = "Inna sprawa nieprocesowa (niewymieniona odrębnie).";
       legalBasis = "Art. 23 pkt 1 u.k.s.c.";
       break;
-
     default:
       const std = calculateStandard(wps);
       fee = std.fee;
@@ -113,7 +105,6 @@ export const calculateCivilFee = (wps: number, procedure: ProcedureType, caseTyp
       legalBasis = std.legalBasis;
   }
 
-  // Korekty trybów (terminologia ustawowa)
   if (procedure === ProcedureType.WRIT_PROCEEDINGS) {
     fee = Math.ceil(fee * 0.25);
     description += " (Pobrano czwartą część opłaty).";
