@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { calculateCivilFee } from './utils/feeCalculator';
 import { CaseType, ProcedureType, CalculationResult } from './types';
@@ -31,11 +30,12 @@ const App: React.FC = () => {
       CaseType.DIVORCE, CaseType.SEPARATION, CaseType.PROTECTION_PERSONAL_RIGHTS, 
       CaseType.EVICTION_RESIDENTIAL, CaseType.POSSESSION_DISTURBANCE, 
       CaseType.MARRIAGE_PERMISSION, CaseType.ESTATE_DIVISION_JOINT, 
-      CaseType.REAL_ESTATE_ZASIEDZENIE, CaseType.CO_OWNERSHIP_DISSOLUTION,
+      CaseType.ESTATE_DIVISION_JOINT_AGREED, CaseType.REAL_ESTATE_ZASIEDZENIE, 
+      CaseType.CO_OWNERSHIP_DISSOLUTION, CaseType.CO_OWNERSHIP_DISSOLUTION_AGREED,
       CaseType.LAND_REGISTER_OWNERSHIP, CaseType.LAND_REGISTER_MORTGAGE,
       CaseType.INHERITANCE_STATEMENT, CaseType.INHERITANCE_DIVISION,
-      CaseType.KRS_REGISTRATION, CaseType.KRS_CHANGE, CaseType.ENVIRONMENTAL_PROTECTION,
-      CaseType.COMPANY_DISSOLUTION, CaseType.PRIVATIZATION_TENDER, CaseType.CONSUMER_PROBATION
+      CaseType.INHERITANCE_DIVISION_AGREED, CaseType.KRS_REGISTRATION, 
+      CaseType.KRS_CHANGE, CaseType.COMPANY_DISSOLUTION, CaseType.BANKING_CONSUMER
     ];
     return !fixedOnly.includes(caseType);
   }, [caseType]);
@@ -66,7 +66,7 @@ const App: React.FC = () => {
           </div>
           <div>
             <h1 className="text-4xl font-extrabold tracking-tight">LexFee Poland</h1>
-            <p className="text-slate-400 font-medium">Zaawansowany kalkulator kosztów sądowych wg ustawy z 2025 r.</p>
+            <p className="text-slate-400 font-medium">Kalkulator kosztów sądowych – edycja profesjonalna 2026</p>
           </div>
         </div>
       </header>
@@ -88,36 +88,25 @@ const App: React.FC = () => {
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm font-medium transition-all"
                 >
                   <optgroup label="Sprawy o zapłatę / majątkowe">
-                    <option value={CaseType.CIVIL_GENERAL}>Sprawa cywilna ogólna (WPS)</option>
-                    <option value={CaseType.BANKING_CONSUMER}>Czynność bankowa (Art. 13a)</option>
-                    <option value={CaseType.PAULIAN_ACTION}>Skarga pauliańska (Art. 13f)</option>
-                    <option value={CaseType.LABOR_EMPLOYEE}>Prawo pracy (Pracownik)</option>
-                    <option value={CaseType.ALIMONY}>Alimenty</option>
+                    <option value={CaseType.CIVIL_GENERAL}>Sprawa cywilna ogólna (5% WPS)</option>
+                    <option value={CaseType.BANKING_CONSUMER}>Sprawa przeciwko bankowi (tylko Konsument)</option>
+                    <option value={CaseType.PAULIAN_ACTION}>Skarga pauliańska</option>
                   </optgroup>
-                  <optgroup label="Sprawy rodzinne i osobiste">
+                  <optgroup label="Sprawy rodzinne">
                     <option value={CaseType.DIVORCE}>Rozwód / Separacja</option>
-                    <option value={CaseType.PROTECTION_PERSONAL_RIGHTS}>Ochrona dóbr osobistych</option>
-                    <option value={CaseType.MARRIAGE_PERMISSION}>Zezwolenie na małżeństwo</option>
-                    <option value={CaseType.MATRIMONIAL_PROPERTY_DISSOLUTION}>Ustanowienie rozdzielności</option>
-                    <option value={CaseType.ESTATE_DIVISION_JOINT}>Podział majątku wspólnego</option>
+                    <option value={CaseType.ESTATE_DIVISION_JOINT}>Podział majątku wspólnego (sporny)</option>
+                    <option value={CaseType.ESTATE_DIVISION_JOINT_AGREED}>Podział majątku wspólnego (zgodny)</option>
                   </optgroup>
-                  <optgroup label="Nieruchomości / Księgi Wieczyste">
+                  <optgroup label="Nieruchomości">
                     <option value={CaseType.REAL_ESTATE_ZASIEDZENIE}>Zasiedzenie (stwierdzenie)</option>
-                    <option value={CaseType.CO_OWNERSHIP_DISSOLUTION}>Zniesienie współwłasności</option>
+                    <option value={CaseType.CO_OWNERSHIP_DISSOLUTION}>Zniesienie współwłasności (sporne)</option>
+                    <option value={CaseType.CO_OWNERSHIP_DISSOLUTION_AGREED}>Zniesienie współwłasności (zgodne)</option>
                     <option value={CaseType.EVICTION_RESIDENTIAL}>Eksmisja z lokalu</option>
-                    <option value={CaseType.POSSESSION_DISTURBANCE}>Naruszenie posiadania</option>
-                    <option value={CaseType.LAND_REGISTER_OWNERSHIP}>WPIS: Własność</option>
-                    <option value={CaseType.LAND_REGISTER_MORTGAGE}>WPIS: Hipoteka</option>
                   </optgroup>
                   <optgroup label="Spadki">
-                    <option value={CaseType.INHERITANCE_STATEMENT}>Nabycie spadku (stwierdzenie)</option>
-                    <option value={CaseType.INHERITANCE_DIVISION}>Dział spadku</option>
-                  </optgroup>
-                  <optgroup label="Gospodarcze / Rejestrowe">
-                    <option value={CaseType.KRS_REGISTRATION}>Rejestracja w KRS</option>
-                    <option value={CaseType.KRS_CHANGE}>Zmiana w KRS</option>
-                    <option value={CaseType.COMPANY_DISSOLUTION}>Rozwiązanie spółki</option>
-                    <option value={CaseType.PRIVATIZATION_TENDER}>Unieważnienie przetargu</option>
+                    <option value={CaseType.INHERITANCE_STATEMENT}>Stwierdzenie nabycia spadku</option>
+                    <option value={CaseType.INHERITANCE_DIVISION}>Dział spadku (sporny)</option>
+                    <option value={CaseType.INHERITANCE_DIVISION_AGREED}>Dział spadku (zgodny projekt)</option>
                   </optgroup>
                 </select>
               </div>
@@ -134,15 +123,6 @@ const App: React.FC = () => {
                     />
                     <span className="absolute right-4 top-3.5 text-slate-300 font-bold">PLN</span>
                   </div>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="500000" 
-                    step="1000"
-                    value={wps}
-                    onChange={(e) => setWps(Number(e.target.value))}
-                    className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500 mt-4"
-                  />
                 </div>
               )}
 
@@ -155,9 +135,8 @@ const App: React.FC = () => {
                 >
                   <option value={ProcedureType.STANDARD}>Zwykły pozew / wniosek</option>
                   <option value={ProcedureType.WRIT_PROCEEDINGS}>Postępowanie nakazowe (1/4)</option>
-                  <option value={ProcedureType.ORDER_PAYMENT_ELECTRONIC}>EPU (Elektroniczne Upominawcze)</option>
+                  <option value={ProcedureType.ORDER_PAYMENT_ELECTRONIC}>EPU (1.25% WPS)</option>
                   <option value={ProcedureType.APPEAL}>Apelacja</option>
-                  <option value={ProcedureType.PRIVATE_MEDIATION_SETTLEMENT}>Zatwierdzenie ugody z mediacji</option>
                 </select>
               </div>
             </div>
@@ -168,9 +147,6 @@ const App: React.FC = () => {
               <i className="fas fa-brain"></i>
               Analiza AI
             </h3>
-            <p className="text-xs text-amber-50 opacity-90 mb-5 leading-relaxed">
-              Gemini przeanalizuje Twoją sprawę pod kątem konkretnych artykułów ustawy i podpowie możliwości zwolnienia z kosztów.
-            </p>
             <button
               onClick={handleAiConsultation}
               disabled={loadingAi}
@@ -194,10 +170,6 @@ const App: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
-                   <div className="bg-green-50 text-green-700 px-4 py-2 rounded-full text-xs font-bold border border-green-100 flex items-center gap-2">
-                     <i className="fas fa-check-circle"></i>
-                     Wyliczenie zgodne z ustawą
-                   </div>
                    <p className="text-[10px] text-slate-400 mt-2 text-right">Podstawa: {result.legalBasis}</p>
                 </div>
               </div>
@@ -210,39 +182,24 @@ const App: React.FC = () => {
                 <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 border-l-4 border-l-slate-800">
                   <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Wskazówki procesowe</h5>
                   <ul className="text-xs text-slate-600 space-y-2">
-                    <li className="flex gap-2"><i className="fas fa-caret-right text-slate-300"></i> Opłatę uiszcza się przy wnoszeniu pisma</li>
-                    <li className="flex gap-2"><i className="fas fa-caret-right text-slate-300"></i> Brak opłaty skutkuje wezwaniem do uzupełnienia</li>
-                    <li className="flex gap-2"><i className="fas fa-caret-right text-slate-300"></i> Możliwe zwolnienie na wniosek (formularz PP)</li>
+                    <li>Opłatę uiszcza się przy wnoszeniu pisma</li>
+                    <li>Brak opłaty = wezwanie do uzupełnienia (7 dni)</li>
+                    <li>Możliwe zwolnienie na wniosek (formularz PP)</li>
                   </ul>
                 </div>
               </div>
 
               {isWpsNeeded && chartData.length > 0 && (
                 <div className="h-72 w-full">
-                  <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Analiza skali opłat w tym trybie</h5>
+                  <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Analiza skali opłat</h5>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis 
-                        dataKey="wps" 
-                        tick={{fontSize: 10, fill: '#94a3b8'}}
-                        axisLine={{stroke: '#e2e8f0'}}
-                        tickFormatter={(v) => `${v/1000}k`}
-                      />
-                      <YAxis tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={{stroke: '#e2e8f0'}} />
-                      <Tooltip 
-                        contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
-                        formatter={(val: number) => [`${val} zł`, 'Opłata']}
-                      />
+                      <XAxis dataKey="wps" tickFormatter={(v) => `${v/1000}k`} />
+                      <YAxis />
+                      <Tooltip />
                       <ReferenceLine x={wps} stroke="#f59e0b" strokeDasharray="3 3" />
-                      <Line 
-                        type="stepAfter" 
-                        dataKey="fee" 
-                        stroke="#0f172a" 
-                        strokeWidth={4} 
-                        dot={false}
-                        animationDuration={1000}
-                      />
+                      <Line type="stepAfter" dataKey="fee" stroke="#0f172a" strokeWidth={4} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -251,35 +208,20 @@ const App: React.FC = () => {
           )}
 
           {aiExplanation && (
-            <div className="bg-slate-900 text-slate-200 p-10 rounded-3xl shadow-2xl border border-slate-800 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="bg-slate-900 text-slate-200 p-10 rounded-3xl shadow-2xl border border-slate-800">
               <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-900 shadow-lg">
+                <div className="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-900">
                   <i className="fas fa-robot text-2xl"></i>
                 </div>
-                <div>
-                  <h3 className="text-xl font-black text-white">Raport Prawny AI</h3>
-                  <p className="text-xs text-slate-400">Wygenerowano na podstawie aktualnych przepisów</p>
-                </div>
+                <h3 className="text-xl font-black text-white">Raport Prawny AI</h3>
               </div>
-              <div className="prose prose-invert prose-amber max-w-none text-slate-300 leading-loose text-sm font-medium whitespace-pre-wrap">
+              <div className="prose prose-invert prose-amber max-w-none text-slate-300 whitespace-pre-wrap text-sm">
                 {aiExplanation}
               </div>
             </div>
           )}
         </section>
       </main>
-
-      <footer className="max-w-5xl mx-auto px-4 mt-20 pt-10 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-8 items-center opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-        <div className="text-slate-500 text-[10px] uppercase font-bold tracking-widest leading-relaxed">
-          Kalkulator bazuje na ustawie o kosztach sądowych w sprawach cywilnych.<br/>
-          Aktualizacja przepisów: luty 2025 r.
-        </div>
-        <div className="flex justify-end gap-6 text-slate-400">
-          <i className="fab fa-google text-xl hover:text-amber-500 transition-colors"></i>
-          <i className="fab fa-react text-xl hover:text-blue-500 transition-colors"></i>
-          <i className="fas fa-shield-alt text-xl hover:text-green-500 transition-colors"></i>
-        </div>
-      </footer>
     </div>
   );
 };
